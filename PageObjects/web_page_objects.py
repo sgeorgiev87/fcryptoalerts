@@ -49,7 +49,9 @@ class BanterBubblesHomePage(BasePage):
                         self.all_twitter_links.append(string)
             else:
                 plain_text = news.text.replace('\n', ' ')
-                self.plain_texts.append(plain_text)
+                # this is to avoid generating videos for some twitter replies - i.e. "Wow. What a story"
+                if len(plain_text) > 40:
+                    self.plain_texts.append(plain_text)
 
     def get_all_new_links(self):
         return self.all_twitter_links

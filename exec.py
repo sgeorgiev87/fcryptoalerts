@@ -1,6 +1,7 @@
 import requests
 import unittest
 from Configuration.drivers_setup import *
+from PageObjects.elai import ElaiAPI
 from PageObjects.openai import OpenAIApi
 from PageObjects.web_page_objects import BanterBubblesHomePage, TwitterPageObjects
 
@@ -11,6 +12,7 @@ class GenerateVideo(unittest.TestCase):
     new_twitter_posts_texts = []
     new_plain_texts = []
     chat_gpt_texts = []
+    all_video_urls = []
     skip_twitter_tests = False
     skip_plain_texts_tests = False
 
@@ -23,7 +25,7 @@ class GenerateVideo(unittest.TestCase):
         bb_homepage = BanterBubblesHomePage(self.driver)
         bb_homepage.open_homepage()
         bb_homepage.open_news_room()
-        bb_homepage.check_and_save_news_posted_less_than_specific_seconds_ago(seconds=300)
+        bb_homepage.check_and_save_news_posted_less_than_specific_seconds_ago(seconds=660)
         bb_homepage.check_new_posts_for_twitter_links()
         self.__class__.new_twitter_links = bb_homepage.get_all_new_links()
         self.__class__.new_plain_texts = bb_homepage.get_all_new_plain_texts()
@@ -48,11 +50,21 @@ class GenerateVideo(unittest.TestCase):
             for post_text in self.__class__.new_twitter_posts_texts:
                 self.__class__.chat_gpt_texts.append(chat_gpt.generate_and_return_text(post_text))
 
-    def test_04_get_texts_from_chat_gpt_according_to_plain_texts(self):
-        if not self.__class__.skip_plain_texts_tests:
-            chat_gpt = OpenAIApi()
-            for post_text in self.__class__.new_plain_texts:
-                self.__class__.chat_gpt_texts.append(chat_gpt.generate_and_return_text(post_text))
+    # def test_04_get_texts_from_chat_gpt_according_to_plain_texts(self):
+    #     if not self.__class__.skip_plain_texts_tests:
+    #         chat_gpt = OpenAIApi()
+    #         for post_text in self.__class__.new_plain_texts:
+    #             self.__class__.chat_gpt_texts.append(chat_gpt.generate_and_return_text(post_text))
 
     def test_05_generate_videos(self):
-        pass
+        elai_api = ElaiAPI()
+        for text in self.__class__.chat_gpt_texts:
+            print(f'CHAT GPT Text is: {text}')
+            elai_api.generate_video_from_text(text)
+            elai_api.render_video()
+            video_url = elai_api.get_url_for_rendered_video()
+            self.__class__.all_video_urls.append(video_url)
+
+    def test_06_print_all_video_urls(self):
+        for url in self.__class__.all_video_urls:
+            print(f'Elai Video URL is: {url}')
