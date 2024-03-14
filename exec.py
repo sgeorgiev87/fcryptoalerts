@@ -32,7 +32,7 @@ class GenerateVideo(unittest.TestCase):
             self.__class__.skip_twitter_test = True
         if len(self.__class__.new_plain_texts) == 0:
             print('NO NEW PLAIN TEXT NEWS IN THIS ITERATION!')
-            self.__class__.skip_twitter_test = True
+            self.__class__.skip_plain_texts_tests = True
 
     def test_02_open_twitter_and_save_all_post_texts(self):
         if not self.__class__.skip_twitter_tests:
