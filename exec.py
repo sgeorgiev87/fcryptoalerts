@@ -11,7 +11,8 @@ class GenerateVideo(unittest.TestCase):
     new_twitter_posts_texts = []
     new_plain_texts = []
     chat_gpt_texts = []
-    skip_twitter_test = False
+    skip_twitter_tests = False
+    skip_plain_texts_tests = False
 
     @classmethod
     def setUpClass(cls):
@@ -27,11 +28,14 @@ class GenerateVideo(unittest.TestCase):
         self.__class__.new_twitter_links = bb_homepage.get_all_new_links()
         self.__class__.new_plain_texts = bb_homepage.get_all_new_plain_texts()
         if len(self.__class__.new_twitter_links) == 0:
-            print('NO NEW NEWS IN THIS ITERATION!')
+            print('NO NEW TWITTER LINKS IN THIS ITERATION!')
+            self.__class__.skip_twitter_test = True
+        if len(self.__class__.new_plain_texts) == 0:
+            print('NO NEW PLAIN TEXT NEWS IN THIS ITERATION!')
             self.__class__.skip_twitter_test = True
 
     def test_02_open_twitter_and_save_all_post_texts(self):
-        if not self.__class__.skip_twitter_test:
+        if not self.__class__.skip_twitter_tests:
             twitter_page = TwitterPageObjects(self.driver)
             for url in self.__class__.new_twitter_links:
                 self.driver.get(url)
@@ -39,11 +43,16 @@ class GenerateVideo(unittest.TestCase):
                 # the URL to be saved to some database, so we do not get it again on any next code run
 
     def test_03_get_texts_from_chat_gpt_according_to_twitter_posts(self):
-        chat_gpt = OpenAIApi()
-        for post_text in self.__class__.new_twitter_posts_texts:
-            self.__class__.chat_gpt_texts.append(chat_gpt.generate_and_return_text(post_text))
-        for text in self.__class__.chat_gpt_texts:
-            print(text)
+        if not self.__class__.skip_twitter_tests:
+            chat_gpt = OpenAIApi()
+            for post_text in self.__class__.new_twitter_posts_texts:
+                self.__class__.chat_gpt_texts.append(chat_gpt.generate_and_return_text(post_text))
 
-    def test_04_generate_video(self):
+    def test_04_get_texts_from_chat_gpt_according_to_plain_texts(self):
+        if not self.__class__.skip_plain_texts_tests:
+            chat_gpt = OpenAIApi()
+            for post_text in self.__class__.new_plain_texts:
+                self.__class__.chat_gpt_texts.append(chat_gpt.generate_and_return_text(post_text))
+
+    def test_05_generate_videos(self):
         pass
