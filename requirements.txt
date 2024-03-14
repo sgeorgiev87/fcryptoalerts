@@ -1,4 +1,4 @@
 chromedriver-py
-openai~=1.14.0
-requests~=2.31.0
-selenium~=4.17.2
+openai
+requests
+selenium
