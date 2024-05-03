@@ -1,13 +1,12 @@
-import requests
-import unittest
+from Configuration.base_test import BaseTest
 from Configuration.drivers_setup import *
 from PageObjects.elai import ElaiAPI
 from PageObjects.openai import OpenAIApi
-from PageObjects.banter_bubble_page_objects import BanterBubblesHomePage, TwitterPageObjects
+from PageObjects.banter_bubble_page_objects import BanterBubblesHomePage
+from PageObjects.twitter_page_objects import TwitterPageObjects
 
 
-class GenerateVideo(unittest.TestCase):
-    driver = None
+class GenerateVideo(BaseTest):
     new_twitter_links = []
     new_twitter_posts_texts = []
     new_plain_texts = []
@@ -16,17 +15,12 @@ class GenerateVideo(unittest.TestCase):
     skip_twitter_tests = False
     skip_plain_texts_tests = False
 
-    @classmethod
-    def setUpClass(cls):
-        cls.driver = driver_init()
-        cls.driver.maximize_window()
-
     def test_01_get_last_news(self):
         bb_homepage = BanterBubblesHomePage(self.driver)
         bb_homepage.open_homepage()
         bb_homepage.open_news_room()
-        bb_homepage.check_and_save_news_posted_less_than_specific_seconds_ago(seconds=660)
-        bb_homepage.check_new_posts_for_twitter_links()
+        bb_homepage.save_via_browser_all_news_posted_less_than_specific_seconds_ago(seconds=660)
+        bb_homepage.differentiate_news_and_twitter_links()
         self.__class__.new_twitter_links = bb_homepage.get_all_new_links()
         self.__class__.new_plain_texts = bb_homepage.get_all_new_plain_texts()
         if len(self.__class__.new_twitter_links) == 0:

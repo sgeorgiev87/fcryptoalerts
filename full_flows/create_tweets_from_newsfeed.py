@@ -1,30 +1,26 @@
 import unittest
 from Configuration.drivers_setup import *
-from PageObjects.elai import ElaiAPI
+from Configuration.base_test import BaseTest
 from PageObjects.openai import OpenAIApi
 from PageObjects.banter_bubble_page_objects import BanterBubbleAPI
 from PageObjects.twitter_page_objects import TwitterPageObjects
 from PageObjects.twitter_api import TwitterAPI
 
 
-class CreateTweetsFromNewsFeed(unittest.TestCase):
-    driver = None
+class CreateTweetsFromNewsFeed(BaseTest):
     new_twitter_links = []
     new_twitter_posts_texts = []
     new_plain_texts = []
     chat_gpt_texts = []
-    all_video_urls = []
     skip_twitter_tests = False
     skip_plain_texts_tests = False
 
-    @classmethod
-    def setUpClass(cls):
-        cls.driver = driver_init()
-        cls.driver.maximize_window()
-
     def test_01_get_last_news(self):
         bb_api = BanterBubbleAPI(self.driver)
-        bb_api.get_via_api_all_news_posted_less_than_specific_seconds_ago()
+        bb_api.save_via_api_all_news_posted_less_than_specific_seconds_ago(12020)
+        bb_api.differentiate_news_and_twitter_links()
+        self.__class__.new_twitter_links = bb_api.get_all_new_links()
+        self.__class__.new_plain_texts = bb_api.get_all_new_plain_texts()
 
     def test_02_open_twitter_and_save_all_post_texts(self):
         if not self.__class__.skip_twitter_tests:
@@ -47,12 +43,23 @@ class CreateTweetsFromNewsFeed(unittest.TestCase):
                 self.__class__.chat_gpt_texts.append(chat_gpt.generate_and_return_text_for_specific_number_of_chars(post_text))
 
     def test_05_post_tweet(self):
-        x_api = TwitterAPI()
-        url = x_api.get_authorization_url()
-        self.driver.get(url)
-        x = TwitterPageObjects(self.driver)
-        x.login_for_verifier_code()
-        verifier = x.get_twitter_code()
-        x_api.set_verifier(verifier)
-        for text in self.__class__.chat_gpt_texts:
-            x_api.create_tweet(text)
+        try:
+            for text in self.__class__.chat_gpt_texts:
+                x_api = TwitterAPI()
+                url = x_api.get_authorization_url()
+                self.driver.get(url)
+                x = TwitterPageObjects(self.driver)
+                x.login_for_verifier_code()
+                try:
+                    x.login()
+                except:
+                    pass
+                verifier = x.get_twitter_code()
+                x_api.set_verifier(verifier)
+                x_api.create_tweet(text)
+        except:
+            counter = 1
+            for text in self.__class__.chat_gpt_texts:
+                counter += 1
+                print(f'-------- \n Chat GPT Text number {str(counter)} is: {text} \n')
+            handle_exception(self.driver, screenshot_name='cannot_post_tweet.png')

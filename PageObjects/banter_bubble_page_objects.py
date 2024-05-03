@@ -12,11 +12,11 @@ class BanterBubbleAPI(BasePage):
         self.new_news = []
         self.all_twitter_links = []
         self.plain_texts = []
-        self.news_api_url = os.environ['BANTER_BUBBLES_NEWS_API']
+        self.news_api_url = os.environ['BANTER_BUBBLES_NEWS_API_URL']
+        self.web_url = os.environ['BANTER_BUBBLES_WEB_URL']
 
     def save_via_api_all_news_posted_less_than_specific_seconds_ago(self, seconds: int = 120):
-        url = 'https://banterbubbles.com/api/news/db2e6417-0a82-477c-b3ee-42ba94999056'
-        all_news = requests.get(url).json()
+        all_news = requests.get(self.news_api_url).json()
         for news in all_news:
             post_date_str = news['created_at']
             post_date_time = datetime.datetime.strptime(post_date_str, "%Y-%m-%dT%H:%M:%S.%fZ")
@@ -27,15 +27,18 @@ class BanterBubbleAPI(BasePage):
             else:
                 break
 
-    def check_new_posts_for_twitter_links(self):
+    def differentiate_news_and_twitter_links(self):
         for news in self.new_news:
-            if 'https://x.com' in news.text or 'https://twitter.com' in news.text:
-                all_strings = news.text.replace('\n', ' ').split(sep=" ")
+            if 'https://x.com' in news or 'https://twitter.com' in news:
+                # separate by space the whole news string in different strings
+                # so we can easily get the Twitter link
+                all_strings = news.replace('\n', ' ').split(sep=" ")
                 for string in all_strings:
                     if 'https://x.com' in string or 'https://twitter.com' in string:
                         self.all_twitter_links.append(string)
+                        break
             else:
-                plain_text = news.text.replace('\n', ' ')
+                plain_text = news.replace('\n', ' ')
                 # this is to avoid generating text and videos for some twitter replies - i.e. "Wow. What a story"
                 if len(plain_text) > 60:
                     self.plain_texts.append(plain_text)

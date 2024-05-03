@@ -1,5 +1,8 @@
+import time
+
 import requests
 from requests_oauthlib import OAuth1Session
+from requests_oauthlib.oauth1_session import TokenRequestDenied
 import os
 import json
 
@@ -8,15 +11,8 @@ class TwitterAPI:
     def __init__(self):
         self.consumer_key = os.environ.get("CONSUMER_KEY")
         self.consumer_secret = os.environ.get("CONSUMER_SECRET")
-        # str2 = ('OAuth oauth_consumer_key="vv4ja2BrPWKWqyRp8ngyP2Jq6",'
-        #         'oauth_token="131473528-ziTQfwHTmmVUapw4otGJEthTSWV8VVMCZmnXkOjF",oauth_signature_method="HMAC-SHA1",'
-        #         'oauth_timestamp="1713795921",oauth_nonce="JZaOkd4xRUk",oauth_version="1.0",'
-        #         'oauth_signature="DUM0BKFgFZZ%2BVhiLv1UeA20Kf9c%3D"')
-        #
-        # str3 = ('OAuth oauth_consumer_key="vv4ja2BrPWKWqyRp8ngyP2Jq6",'
-        #         'oauth_token="131473528-ziTQfwHTmmVUapw4otGJEthTSWV8VVMCZmnXkOjF",oauth_signature_method="HMAC-SHA1",'
-        #         'oauth_timestamp="1713796034",oauth_nonce="gVT1g8MhZMZ",oauth_version="1.0",'
-        #         'oauth_signature="Z9%2B9TeBQBgiwUNVrG3X1hc94pjw%3D"')
+        print(f'Consumer key in Twitter init is: {self.consumer_key}')
+        print(f'Consumer Secret in Twitter init is: {self.consumer_secret}')
         self.resource_owner_key = ''
         self.resource_owner_secret = ''
         self.verifier = ''
@@ -45,7 +41,6 @@ class TwitterAPI:
 
     def set_verifier(self, verifier):
         self.verifier = verifier
-    25 години .. а ще отеква във вечността
 
     def create_tweet(self, tweet_text):
         # Get the access token
@@ -57,7 +52,20 @@ class TwitterAPI:
             resource_owner_secret=self.resource_owner_secret,
             verifier=self.verifier,
         )
-        oauth_tokens = oauth.fetch_access_token(access_token_url)
+
+        counter = 1
+        while counter < 10:
+            try:
+                print(f'Counter is: {str(counter)}')
+                oauth_tokens = oauth.fetch_access_token(access_token_url)
+                break
+            except TokenRequestDenied:
+                print(f'I am in the exception!!! Counter is: {str(counter)}')
+                time.sleep(15)
+                counter += 1
+        if counter == 10:
+            oauth_tokens = oauth.fetch_access_token(access_token_url)
+
 
         access_token = oauth_tokens["oauth_token"]
         access_token_secret = oauth_tokens["oauth_token_secret"]
@@ -73,7 +81,7 @@ class TwitterAPI:
         # Making the request
         response = oauth.post(
             "https://api.twitter.com/2/tweets",
-            json=tweet_text,
+            json={"text": tweet_text},
         )
 
         if response.status_code != 201:
@@ -86,3 +94,4 @@ class TwitterAPI:
         # Saving the response as JSON
         json_response = response.json()
         print(json.dumps(json_response, indent=4, sort_keys=True))
+        time.sleep(20)

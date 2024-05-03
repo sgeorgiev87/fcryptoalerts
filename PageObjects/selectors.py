@@ -17,7 +17,7 @@ class TwitterSelectors(object):
     INPUT_TWEET_TEXT = (By.CSS_SELECTOR, 'div[class*="public-DraftStyleDefault"]')
     POST_TWEET_BUTTON = (By.CSS_SELECTOR, 'div[data-testid="tweetButtonInline"] span')
     FIRST_TWEET_TEXT = (By.CSS_SELECTOR, 'div[data-testid="tweetText"]')
-    AUTHORIZE_APP_BUTTON = (By.CSS_SELECTOR, 'input[value="Authorise app"]')
+    AUTHORIZE_APP_BUTTON = (By.CSS_SELECTOR, '#allow')
     TWITTER_CODE = (By.CSS_SELECTOR, 'kbd code')
     TWITTER_API_USERNAME = (By.CSS_SELECTOR, '#username_or_email')
     TWITTER_API_PASSWORD = (By.CSS_SELECTOR, '#password')
