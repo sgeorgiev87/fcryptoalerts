@@ -43,23 +43,20 @@ class CreateTweetsFromNewsFeed(BaseTest):
                 self.__class__.chat_gpt_texts.append(chat_gpt.generate_and_return_text_for_specific_number_of_chars(post_text))
 
     def test_05_post_tweet(self):
-        try:
-            for text in self.__class__.chat_gpt_texts:
+        for text in self.__class__.chat_gpt_texts:
+            try:
                 x_api = TwitterAPI()
                 url = x_api.get_authorization_url()
                 self.driver.get(url)
                 x = TwitterPageObjects(self.driver)
                 x.login_for_verifier_code()
-                try:
-                    x.login()
-                except:
-                    pass
+                # try:
+                #     x.login()
+                # except:
+                #     pass
                 verifier = x.get_twitter_code()
                 x_api.set_verifier(verifier)
                 x_api.create_tweet(text)
-        except:
-            counter = 1
-            for text in self.__class__.chat_gpt_texts:
-                counter += 1
-                print(f'-------- \n Chat GPT Text number {str(counter)} is: {text} \n')
-            handle_exception(self.driver, screenshot_name='cannot_post_tweet.png')
+            except:
+                print(f'-------- \n Chat GPT Text is: {text} \n')
+                handle_exception(self.driver, screenshot_name='cannot_post_tweet.png')

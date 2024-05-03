@@ -6,7 +6,7 @@ from Configuration.constants import Credentials
 
 
 class TwitterPageObjects(BasePage):
-    def __init__(self, driver, timeout=10):
+    def __init__(self, driver, timeout=5):
         BasePage.__init__(self, driver=driver, timeout=timeout)
         self.username = os.environ['TWITTER_USERNAME']
         self.password = os.environ['TWITTER_PASSWORD']
@@ -34,9 +34,18 @@ class TwitterPageObjects(BasePage):
 
     def login_for_verifier_code(self):
         self.click_authorize_app_button()
-        self.visibility_of_element(TwitterSelectors.TWITTER_API_USERNAME).send_keys(self.username)
-        self.visibility_of_element(TwitterSelectors.TWITTER_API_PASSWORD).send_keys(self.password)
-        self.click_authorize_app_button()
+        try:
+            self.login()
+        except:
+            try:
+                self.visibility_of_element(TwitterSelectors.TWITTER_API_USERNAME).send_keys(self.username)
+                self.visibility_of_element(TwitterSelectors.TWITTER_API_PASSWORD).send_keys(self.password)
+            except:
+                pass
+        try:
+            self.click_authorize_app_button()
+        except:
+            pass
 
     def click_authorize_app_button(self):
         try:
