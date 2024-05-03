@@ -8,12 +8,16 @@ from random import randint
 import os
 import re
 import traceback
+from dotenv import load_dotenv
 
 project_path = os.path.dirname(os.path.abspath('Drivers_setup.py'))
 chromedriver_path = 'C:/drivers/chromedriver.exe'
 
 
 def driver_init():
+    load_dotenv()
+    print(f'Consumer key is: {os.environ["CONSUMER_KEY"]}')
+    print(f'Consumer Secret is: {os.environ["CONSUMER_SECRET"]}')
     service = ChromeService(executable_path=binary_path)
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--no-sandbox")
@@ -30,7 +34,7 @@ def driver_init():
 def handle_exception(driver,
                      custom_exception='',
                      raise_exception=True,
-                     screenshot_name='Error_' + str(randint(1,1000)).zfill(4) + '.png'):
+                     screenshot_name='Error_' + str(randint(1, 1000)).zfill(4) + '.png'):
 
     screenshot_pattern = "\w+.(jpg|JPG|png|PNG)$"
 
