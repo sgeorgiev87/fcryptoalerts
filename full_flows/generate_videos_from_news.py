@@ -3,7 +3,7 @@ import unittest
 from Configuration.drivers_setup import *
 from PageObjects.elai import ElaiAPI
 from PageObjects.openai import OpenAIApi
-from PageObjects.web_page_objects import BanterBubblesHomePage, TwitterPageObjects
+from PageObjects.banter_bubble_page_objects import BanterBubblesHomePage, TwitterPageObjects
 
 
 class GenerateVideo(unittest.TestCase):
@@ -48,13 +48,13 @@ class GenerateVideo(unittest.TestCase):
         if not self.__class__.skip_twitter_tests:
             chat_gpt = OpenAIApi()
             for post_text in self.__class__.new_twitter_posts_texts:
-                self.__class__.chat_gpt_texts.append(chat_gpt.generate_and_return_text(post_text))
+                self.__class__.chat_gpt_texts.append(chat_gpt.generate_and_return_text_for_specific_number_of_words(post_text))
 
-    # def test_04_get_texts_from_chat_gpt_according_to_plain_texts(self):
-    #     if not self.__class__.skip_plain_texts_tests:
-    #         chat_gpt = OpenAIApi()
-    #         for post_text in self.__class__.new_plain_texts:
-    #             self.__class__.chat_gpt_texts.append(chat_gpt.generate_and_return_text(post_text))
+    def test_04_get_texts_from_chat_gpt_according_to_plain_texts(self):
+        if not self.__class__.skip_plain_texts_tests:
+            chat_gpt = OpenAIApi()
+            for post_text in self.__class__.new_plain_texts:
+                self.__class__.chat_gpt_texts.append(chat_gpt.generate_and_return_text_for_specific_number_of_words(post_text))
 
     def test_05_generate_videos(self):
         elai_api = ElaiAPI()
